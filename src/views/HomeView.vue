@@ -5,16 +5,28 @@
       <h3>The squatting car</h3>
     </section>
 
-    <section class="grid gap-4">
+    <section
+      class="grid gap-4"
+      :class="{ 'hidden transition-all': isCameraOpen }"
+    >
       <h2>This challenge requires 2 players.</h2>
       <h3>
-        Position yourself towards the camera and start squatting to move the car. The faster you squat, the faster the car moves.
-        First to reach the finish line wins!
+        Position yourself towards the camera and start squatting to move the
+        car. The faster you squat, the faster the car moves. First to reach the
+        finish line wins!
       </h3>
     </section>
 
-    <section class="grid gap-4">
-      <div class="flex flex-col-reverse rounded-2xl gap-6 p-4 min-h-max border-dashed border-2">
+    <section
+      class="grid gap-4"
+      :class="{ 'translate-y-0 transition-all': isCameraOpen }"
+    >
+      <div class="text-center border-dashed border-2 p-2 font-bold rounded-xl">
+        Squat Count: {{ scount }}
+      </div>
+      <div
+        class="flex flex-col-reverse rounded-2xl gap-6 p-4 min-h-max border-dashed border-2"
+      >
         <div class="flex justify-center items-center">
           <div class="camera-button">
             <button
@@ -33,13 +45,13 @@
             </button>
           </div>
         </div>
-        <div>
-          <video
-            ref="camera"
-            class="w-full bg-black object-cover rounded-xl"
-            autoplay
-          ></video>
+        <div v-if="isCameraOpen">
+          <img
+            src="http://localhost:5000/video_feed"
+            class="w-full object-cover rounded-xl"
+          />
         </div>
+        <div class="w-full h-96 bg-black rounded-xl" v-else></div>
       </div>
     </section>
   </div>
@@ -53,18 +65,20 @@ export default {
   name: "HomeView",
   data() {
     return {
-      msg: "",
+      msg: 0,
+      scount: 0,
       polling: null,
       isCameraOpen: false,
     };
   },
   methods: {
     getMessage() {
-      const path = "http://localhost:5000";
+      const path = "http://localhost:5000/data";
       axios
         .get(path)
         .then((res) => {
-          this.msg = res.data;
+          this.msg = res.data.count;
+          // console.log(this.msg);
         })
         .catch((error) => {
           console.error(error);
@@ -73,40 +87,40 @@ export default {
     pollData() {
       this.polling = setInterval(() => {
         this.getMessage();
-      }, 1);
-    },
-    startCameraStream() {
-      const constraints = (window.constraints = {
-        audio: false,
-        video: true,
-      });
-      navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then((stream) => {
-          this.$refs.camera.srcObject = stream;
-        })
-        .catch((error) => {
-          alert("Browser doesn't support or there is some errors." + error);
-        });
-    },
-    stopCameraStream() {
-      let tracks = this.$refs.camera.srcObject.getTracks();
-      tracks.forEach((track) => {
-        track.stop();
-      });
+        this.updateCount();
+      }, 10);
     },
     toggleCamera() {
       if (this.isCameraOpen) {
         this.isCameraOpen = false;
-        this.stopCameraStream();
+        axios
+          .post("http://localhost:5000/video_feed")
+          .then((res) => {})
+          .catch((error) => {
+            console.log(error);
+          });
+        this.msg = 0;
+        this.scount = 0;
       } else {
         this.isCameraOpen = true;
-        this.startCameraStream();
+      }
+    },
+    async updateCount() {
+      const headers = { "Content-Type": "application/json;charset=UTF-8" };
+      const path = "http://172.20.10.2/switch_on"; // http://172.20.10.2/switch_on_2 for player 2
+      if (this.scount != this.msg) {
+        this.scount = this.msg;
+        await axios
+          .post(path, null, { headers })
+          .then((res) => {})
+          .catch((error) => {
+            console.log(error);
+          });
       }
     },
   },
   created() {
-    // this.pollData();
+    this.pollData();
   },
   beforeDestroy() {
     clearInterval(this.polling);
