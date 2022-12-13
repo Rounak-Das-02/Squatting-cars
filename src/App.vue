@@ -1,29 +1,21 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link>
-  </nav>
-  <router-view/>
+  <div class="flex items-center justify-center">
+    <div class="lg:flex lg:flex-row-reverse lg:mx-6 container">
+      <section id="container" class="w-full h-screen overflow-scroll">
+        <router-view class="mt-28 mx-6 mb-24 lg:flex-grow" />
+      </section>
+      <NavView />
+    </div>
+  </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import NavView from "@/components/NavView.vue";
 
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
+export default {
+  name: "MainView",
+  components: {
+    NavView,
+  },
+};
+</script>

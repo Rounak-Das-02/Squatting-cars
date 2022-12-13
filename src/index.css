@@ -1,3 +1,80 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply text-2xl;
+    @apply font-bold;
+  }
+
+  h2 {
+    @apply font-bold;
+  }
+
+  .card-bg {
+    @apply px-4;
+    @apply py-6;
+    @apply bg-black/5;
+    @apply rounded-xl;
+  }
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+
+body {
+  overflow: hidden;
+}
+
+#app {
+  font-family: "Montserrat", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.text-accent {
+  color: #0084FF;
+}
+
+.login-container {
+  background: linear-gradient(180deg, #9AD5B1 0%, #9AB8D5 100%);
+}
+
+.container {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 624px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 728px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1000px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1080px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1112px;
+  }
+}
