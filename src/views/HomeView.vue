@@ -107,7 +107,7 @@ export default {
     },
     async updateCount() {
       const headers = { "Content-Type": "application/json;charset=UTF-8" };
-      const path = "http://172.20.10.2/switch_on"; // http://172.20.10.2/switch_on_2 for player 2
+      const path = "http://172.20.10.2/switch_on"; // http://172.20.10.6/switch_on_2 for player 2
       if (this.scount != this.msg) {
         this.scount = this.msg;
         await axios
