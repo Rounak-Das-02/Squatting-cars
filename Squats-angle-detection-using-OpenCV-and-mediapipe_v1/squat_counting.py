@@ -4,7 +4,7 @@ import mediapipe as mp
 import numpy as np
 
 from flask_cors import CORS
-from flask import Flask, jsonify, Response, render_template
+from flask import Flask, jsonify
 
 # configuration
 DEBUG = True
@@ -47,14 +47,16 @@ def rescale_frame(frame, percent=50):
     dim = (width, height)
     return cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
+
 angle_min = []
 angle_min_hip = []
 
 # webcam input
 cap = cv2.VideoCapture(0)
 
-def capture():
 
+@app.route('/', methods=['GET'])
+def capture():
     # Curl counter variables
     counter = 0
     stage = None
@@ -83,22 +85,23 @@ def capture():
                 shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
                             landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
                 elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+                         landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
                 wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+                         landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
 
                 # Get coordinates
                 hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,
-                    landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                       landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
                 knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
                         landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
                 ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+                         landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
 
                 # Calculate angle
                 angle = calculate_angle(shoulder, elbow, wrist)
 
-                angle_knee = calculate_angle(hip, knee, ankle)  # Knee joint angle
+                angle_knee = calculate_angle(
+                    hip, knee, ankle)  # Knee joint angle
 
                 angle_hip = calculate_angle(shoulder, hip, knee)
                 hip_angle = 180-angle_hip
@@ -155,11 +158,11 @@ def capture():
 
             # Render detections
             mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                                    mp_drawing.DrawingSpec(
-                                        color=(245, 117, 66), thickness=2, circle_radius=2),
-                                    mp_drawing.DrawingSpec(
-                                        color=(245, 66, 230), thickness=2, circle_radius=2)
-                                    )
+                                      mp_drawing.DrawingSpec(
+                                          color=(245, 117, 66), thickness=2, circle_radius=2),
+                                      mp_drawing.DrawingSpec(
+                                          color=(245, 66, 230), thickness=2, circle_radius=2)
+                                      )
 
             # out.write(image)
             cv2.imshow('Squatty', image)
@@ -167,16 +170,19 @@ def capture():
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
 
-        cap.release()
-        cv2.destroyAllWindows()
+            return jsonify({
+                'status': 'success',
+                'count': str(counter),
+                'rep': stage
+            })
 
-@app.route('/video_feed')
-def index():
-    return render_template('index.html')
+# @app.route('/')
+# def index():
+#     return render_template('index.html')
 
-@app.route('/', methods=['GET'])
-def video_feed():
-    return Response(capture(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
     app.run()
+
+cap.release()
+cv2.destroyAllWindows()
